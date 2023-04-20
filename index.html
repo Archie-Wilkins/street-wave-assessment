@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap 5 -->
+    <!-- Latest minified CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Hello</h1>
+    <div class="container d-flex just justify-content-center align-items-center">
+        <div class="border border-info">
+            <h1>Weather Checker</h1>
+
+            <div class="m-5 bg-secondary d-flex justify-content-around">
+                <!-- long input -->
+                <label for="long">Longitude</label>
+                <input type="text" name="long" id="long">
+
+                <!-- lat input -->
+                <label for="lat">Latitude</label>
+                <input type="text" name="lat" id="lat">
+
+                <!-- submit button -->
+                <button type="submit" id="submit">Get Weather Details</button>
+            </div>
+            <h3>Todays Weather</h3>
+            <hr>
+            <!-- Image -->
+            <h3>Temperature</h3>
+            <p id="todaysTemperature">
+
+            </p>
+
+            <h3>Humidity</h3>
+            <p id="todaysHumidity">
+
+            </p>
+
+            <div>
+                <!-- Leftside -->
+                <div class="bg-secondary">
+                    <h3>Tommorows Weather</h3>
+                    <hr>
+                    <!-- Image -->
+                    <h3>Temperature</h3>
+                    <p id="tommorowsTemperature">
+
+                    </p>
+
+                    <h3>Humidity</h3>
+                    <p id="tommorowsHumidity">
+
+                    </p>
+
+
+                </div>
+
+                <!-- Rightside -->
+                <div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+<!-- Bootstrap Packaged JS (Bundle) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+
+<script>
+    const submit = document.getElementById('submit');
+    const longInput = document.getElementById('long');
+    const latInput = document.getElementById('lat');
+
+    const todaysTemperature = document.getElementById('todaysTemperature');
+    const todaysHumidity = document.getElementById('todaysHumidity');
+
+    submit.addEventListener('click', () => {
+        console.log(longInput.value);
+        console.log(latInput.value);
+
+        // Do some error handling here 
+        // look for valud inputs
+        const long = longInput.value
+        const lat = latInput.value
+
+        getWeatherDetails(lat, long);
+
+    })
+
+
+    // I just grabbed some code off of stack overflow to show how to make a fetch request
+    // I prefer axios :(
+    const getWeatherDetails = async (lat, long) => {
+
+        console.log("testing");
+        var apiKey = "SBDBXKAQB7HZDPJ95HVMN6H26";
+        latLong = lat + "," + long;
+
+
+        // Borrowed from how to get unix timestamp stackoverflow https://stackoverflow.com/questions/221294/how-do-i-get-a-timestamp-in-javascript
+        var timeNow = Math.floor(Date.now() / 1000)
+
+        // Time 24 hours from now
+        var timeTommorowDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        var timeTommorow = Math.floor(timeTommorowDate / 1000)
+
+
+        // Lattitude then longitude
+        var url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${latLong}/${timeNow}/${timeTommorow}?key=${apiKey}`
+
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then((response) => response.json())
+            .then(function (apiResponse) {
+
+                // weatherData = apiResponse.json();
+                console.log(apiResponse);
+
+
+                const todaysWeather = apiResponse.days[0];
+                // set the temperature 
+                todaysTemperature.innerHTML = todaysWeather.feelslike;
+                todaysHumidity.innerHTML = todaysWeather.humidity;
+
+                console.log(todaysWeather)
+
+                const tommorowsWeather = apiResponse.days[1];
+                tommorowsTemperature.innerHTML = tommorowsWeather.feelslike;
+                tommorowsHumidity.innerHTML = tommorowsWeather.humidity;
+
+
+            })
+            .catch(function (err) {
+                console.log("Erroring")
+                console.log(err)
+            });
+
+    }
+</script>
+
+</html>
